@@ -1,27 +1,4 @@
-# %% [markdown]
-# # **Homework 1: COVID-19 Cases Prediction (Regression)**
 
-# %% [markdown]
-# Objectives:
-# * Solve a regression problem with deep neural networks (DNN).
-# * Understand basic DNN training tips.
-# * Familiarize yourself with PyTorch.
-# 
-# If you have any questions, please contact the TAs via TA hours, NTU COOL, or email to mlta-2022-spring@googlegroups.com
-
-# %% [markdown]
-# # Download data
-# If the Google Drive links below do not work, you can download data from [Kaggle](https://www.kaggle.com/t/a3ebd5b5542f0f55e828d4f00de8e59a), and upload data manually to the workspace.
-
-# %%
-!gdown --id '1kLSW_-cW2Huj7bh84YTdimGBOJaODiOS' --output covid.train.csv
-!gdown --id '1iiI5qROrAhZn-o4FPqsE97bMzDEFvIdg' --output covid.test.csv
-
-# %% [markdown]
-# # Import packages
-
-# %%
-# Numerical Operations
 import math
 import numpy as np
 
@@ -44,12 +21,7 @@ from torch.utils.tensorboard import SummaryWriter
 from sklearn.preprocessing import StandardScaler
 from scipy import stats
 
-# %% [markdown]
-# # Some Utility Functions
-# 
-# You do not need to modify this part.
 
-# %%
 def same_seed(seed):
     '''Fixes random number generator seeds for reproducibility.'''
     torch.backends.cudnn.deterministic = True
@@ -77,10 +49,7 @@ def predict(test_loader, model, device):
     preds = torch.cat(preds, dim=0).numpy()
     return preds
 
-# %% [markdown]
-# # Dataset
-
-# %%
+#Dataset
 class COVID19Dataset(Dataset):
     '''
     x: Features.
@@ -102,11 +71,6 @@ class COVID19Dataset(Dataset):
     def __len__(self):
         return len(self.x)
 
-# %% [markdown]
-# # Feature Selection
-# Choose features you deem useful by modifying the function below.
-
-# %%
 def select_feat(train_data, valid_data, test_data, select_all=True):
     '''Selects useful features to perform regression'''
     y_train, y_valid = train_data[:,-1], valid_data[:,-1]
@@ -119,11 +83,7 @@ def select_feat(train_data, valid_data, test_data, select_all=True):
 
     return raw_x_train[:,feat_idx], raw_x_valid[:,feat_idx], raw_x_test[:,feat_idx], y_train, y_valid
 
-# %% [markdown]
-# # Neural Network Model
-# Try out different model architectures by modifying the class below.
 
-# %%
 class My_Model(nn.Module):
     def __init__(self, input_dim):
         super(My_Model, self).__init__()
@@ -139,10 +99,9 @@ class My_Model(nn.Module):
         x = x.squeeze(1) # (B, 1) -> (B)
         return x
 
-# %% [markdown]
-# # Training Loop
 
-# %%
+
+#Training loop
 def trainer(train_loader, valid_loader, model, config, device):
 
     criterion = nn.MSELoss(reduction='mean') # Define your loss function, do not modify this.
@@ -214,11 +173,7 @@ def trainer(train_loader, valid_loader, model, config, device):
             print('\nModel is not improving, so we halt the training session.')
             return
 
-# %% [markdown]
-# # Configurations
-# `config` contains hyper-parameters for training and the path to save your model.
-
-# %%
+#config
 device = 'cuda' if torch.cuda.is_available() else 'cpu'
 config = {
     'seed': 5201314,      # Your seed number, you can pick your lucky number. :)
@@ -234,7 +189,6 @@ config = {
 # %% [markdown]
 # # Data Preprocessing
 
-# %%
 t_data = pd.read_csv('./covid.train.csv')
 # t_data.head()
 
@@ -252,9 +206,9 @@ print(select_columns[:-1])
 
 # t_data[select_columns] = t_data[select_columns][z < 3]
 
-# %% [markdown]
-# # Dataloader
-# Read data from files and set up training, validation, and testing sets. You do not need to modify this part.
+
+#Dataloader
+#Read data from files and set up training, validation, and testing sets. You do not need to modify this part.
 
 # %%
 # Set seed for reproducibility
@@ -313,27 +267,12 @@ test_loader = DataLoader(test_dataset, batch_size=config['batch_size'], shuffle=
 model = My_Model(input_dim=x_train.shape[1]).to(device) # put your model and data on the same computation device.
 trainer(train_loader, valid_loader, model, config, device)
 
-# %% [markdown]
-# # Plot learning curves with `tensorboard` (optional)
-# 
-# `tensorboard` is a tool that allows you to visualize your training progress.
-# 
-# If this block does not display your learning curve, please wait for few minutes, and re-run this block. It might take some time to load your logging information.
 
-# %%
-%reload_ext tensorboard
-%tensorboard --logdir=./runs/
-
-# %% [markdown]
-# ## Notes
+# Notes
 # 
 # * Validation loss: 1.184 with (feat, 1)
 
-# %% [markdown]
-# # Testing
-# The predictions of your model on testing set will be stored at `pred.csv`.
-
-# %%
+#Save Prediction
 def save_pred(preds, file):
     ''' Save predictions to specified file '''
     with open(file, 'w') as fp:
@@ -347,8 +286,5 @@ model.load_state_dict(torch.load(config['save_path']))
 preds = predict(test_loader, model, device)
 save_pred(preds, 'pred.csv')
 
-# %% [markdown]
-# # Reference
-# This notebook uses code written by Heng-Jui Chang @ NTUEE (https://github.com/ga642381/ML2021-Spring/blob/main/HW01/HW01.ipynb)
 
 
