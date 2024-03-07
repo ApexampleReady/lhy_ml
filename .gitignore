@@ -1,2 +1,10 @@
 .mypy_cache
-
+*.ckpt
+__pycache__/
+hw1/runs
+hw2/libriphone
+hw2/libriphone.zip
+hw3/test
+hw3/train
+hw3/valid
+hw3/food-11.zip
